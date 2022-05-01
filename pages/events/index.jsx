@@ -3,11 +3,12 @@ import { Fragment } from 'react';
 
 import EventList from '../../components/events/event-list';
 import EventsSearch from '../../components/events/events-search';
-import { getAllEvents } from '../../dummy-data';
+import { getAllEvents } from '../../helpers/api-util';
 
-function AllEventsPage() {
-	const allEvents = getAllEvents();
+function AllEventsPage(props) {
 	const router = useRouter();
+
+	const events = props.events;
 
 	function findEventsHandler(year, month) {
 		router.push(`/events/${year}/${month}`);
@@ -16,9 +17,22 @@ function AllEventsPage() {
 	return (
 		<Fragment>
 			<EventsSearch onSearch={findEventsHandler} />
-			<EventList items={allEvents} />
+			<EventList items={events} />
 		</Fragment>
 	);
 }
+
+export const getStaticProps = async () => {
+	const events = await getAllEvents();
+
+	const thirtySeconds = 30;
+
+	return {
+		props: {
+			events: events ?? [],
+		},
+		revalidate: thirtySeconds,
+	};
+};
 
 export default AllEventsPage;
